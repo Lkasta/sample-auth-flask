@@ -1,3 +1,6 @@
+import os
+from dotenv import load_dotenv
+
 from flask import Flask, jsonify, request
 from database import db
 from flask_login import LoginManager, login_user, current_user, logout_user, login_required
@@ -6,7 +9,7 @@ from models.user import User
 
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "your_secret_key"
-app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///database.db"
+app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
 
 login_manager = LoginManager()
 db.init_app(app)
