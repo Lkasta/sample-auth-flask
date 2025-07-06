@@ -57,10 +57,10 @@ def update_user(user_id):
     return jsonify({"message": "User has been updated!"})
 
   return jsonify({"message": f"User id {user_id} not found"}), 400
-  user = User.query.get(user_id)
 
-  if current_user.id != user_id:
-    return jsonify({"message": "Unauthorized"}), 403
+@app.route('/user/<int:user_id>', methods=['DELETE'])
+def delete_user(user_id):
+  user = User.query.get(user_id)
 
   if user:
     db.session.delete(user)
