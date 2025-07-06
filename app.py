@@ -8,11 +8,13 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = "your_secret_key"
 app.config['SQLALCHEMY_DATABASE_URI'] = "sqlite:///database.db"
 
-login_maneger = LoginManager()
+login_manager = LoginManager()
 db.init_app(app)
-login_maneger.init_app(app)
+login_manager.init_app(app)
 
-login_maneger.login_view = 'login'
+login_manager.login_view = 'login'
+
+@login_manager.user_loader
 
 @app.route('/login', methods=['POST'])
 def login():
