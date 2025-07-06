@@ -18,6 +18,20 @@ login_manager.login_view = 'login'
 def load_user(user_id):
   return User.query.get(user_id)
 
+@app.route('/register-user', methods=['POST'])
+def register_user():
+  data = request.json
+  username = data.get("username")
+  password = data.get("password")
+
+  if username and password:
+    user = User(username=username, password=password)
+    db.session.add(user)
+    db.session.commit()
+    return jsonify({"message": "Created user"})
+
+  return jsonify({"message": "Invalid credentials"}), 400
+
 @app.route('/login', methods=['POST'])
 def login():
   data = request.json
