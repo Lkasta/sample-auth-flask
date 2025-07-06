@@ -7,6 +7,7 @@ from flask_login import LoginManager, login_user, current_user, logout_user, log
 
 from models.user import User
 
+load_dotenv()
 app = Flask(__name__)
 app.config['SECRET_KEY'] = "your_secret_key"
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv('DATABASE_URL')
