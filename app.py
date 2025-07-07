@@ -1,8 +1,9 @@
 import os
 from dotenv import load_dotenv
 
-from flask import Flask, jsonify, request
 from database import db
+import bcrypt
+from flask import Flask, jsonify, request
 from flask_login import LoginManager, login_user, current_user, logout_user, login_required
 
 from models.user import User
@@ -29,9 +30,11 @@ def register_user():
   password = data.get("password")
 
   if username and password:
-    user = User(username=username, password=password)
+    hashed_password = bcrypt.hashpw(str.encode(password), bcrypt.gensalt()).decode()
+    user = User(username=username, password=hashed_password, role='user')
     db.session.add(user)
     db.session.commit()
+
     return jsonify({"message": "Created user"})
 
   return jsonify({"message": "Invalid credentials"}), 400
@@ -48,14 +51,15 @@ def read_user(user_id):
 @app.route('/user/<int:user_id>', methods=['PUT'])
 @login_required
 def update_user(user_id):
+  if current_user.role != 'user':
+    return jsonify({"message": "Unauthorized"}), 403
+  
   data = request.json
+  hash_password = data.get("password")
   user = User.query.get(user_id)
 
-  if current_user.id != user_id:
-    return jsonify({"message": "Unauthorized"}), 403
-
   if user and data.get("password"):
-    user.password = data.get("password")
+    user.password = bcrypt.hashpw(hash_password.encode(), bcrypt.gensalt()).decode()
     db.session.commit()
 
     return jsonify({"message": "User has been updated!"})
@@ -81,7 +85,8 @@ def login():
 
   if username and password:
     user = User.query.filter_by(username=username).first()
-    if user and user.password == password:
+    
+    if user and bcrypt.checkpw(password.encode(), user.password.encode()):
       login_user(user)
       print(f'UserId: {current_user.id}')
       return jsonify({"message": "Login"}) 
